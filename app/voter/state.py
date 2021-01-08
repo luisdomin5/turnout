@@ -75,7 +75,7 @@ def lookup_ga(
         logger.warning(f"Unable to geocode county for {item}: addrs {addrs}")
         return None, None
 
-    proxy_str = get_random_proxy_str_pair()
+    proxy_str = get_random_proxy_str()
     logger.debug(f"lookup up GA {item} with proxy_str {proxy_str}")
     voter = ga.lookup_voter(
         first_name=item.first_name,
