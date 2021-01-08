@@ -971,6 +971,16 @@ API_KEY_PEPPER = env.str("API_KEY_PEEPER", default="somepepper")
 
 #### UPTIME CONFIGURATION
 
+UPTIME_URL = env.str("UPTIME_URL", default=None)
+UPTIME_USER = env.str("UPTIME_USER", default=None)
+UPTIME_SECRET = env.str("UPTIME_SECRET", default=None)
+
+CELERY_BEAT_SCHEDULE["trigger-config-uptime"] = {
+    "task": "integration.tasks.config_uptime",
+    "schedule": crontab(minute=15, hour="*/3"),
+}
+
+
 UPTIME_ENABLED = env.bool("UPTIME_ENABLED", default=False)
 UPTIME_CHECK_CRON_MINUTE = env.str("UPTIME_CHECK_CRON_MINUTE", default="*/15")
 UPTIME_CHECK_DOWN_CRON_MINUTE = env.str("UPTIME_CHECK_DOWN_CRON_MINUTE", default="*/5")
