@@ -17,6 +17,34 @@ MONITOR = {
 logger = logging.getLogger("integration")
 
 
+def get_session():
+    session = requests.Session()
+    session.auth = requests.auth.HTTPBasicAuth(
+        settings.UPTIME_USER, settings.UPTIME_SECRET
+    )
+    return session
+
+
+def get_random_proxy_str():
+    # Borrow a proxy from the uptime bot?
+    session = get_session()
+    try:
+        nexturl = f"{settings.UPTIME_URL}/v1/uptime/proxies/"
+        proxies = []
+        while nexturl:
+            response = session.get(nexturl)
+            response.raise_status()
+            nexturl = response.json().get("next")
+            for proxy in response.json().get("result", []):
+                if proxy["status"] == "up":
+                    proxies.append(proxy)
+        random.shuffle(proxies)
+        return f"socks5://{proxy['address']}"
+
+    except:
+        return None
+
+
 @tracer.wrap()
 def config_uptime():
     sites = {}  # description -> {url, metadata}
@@ -34,10 +62,7 @@ def config_uptime():
             }
 
     # list our existing sites
-    session = requests.Session()
-    session.auth = requests.auth.HTTPBasicAuth(
-        settings.UPTIME_USER, settings.UPTIME_SECRET
-    )
+    session = get_session()
 
     nexturl = f"{settings.UPTIME_URL}/v1/uptime/sites-mine/"
     while nexturl:
