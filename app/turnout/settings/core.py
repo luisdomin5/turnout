@@ -964,7 +964,7 @@ API_KEY_PEPPER = env.str("API_KEY_PEEPER", default="somepepper")
 #### UPTIME CONFIGURATION
 
 UPTIME_URL = env.str("UPTIME_URL", default=None)
-UPTIME_USER = env.str("UPTIME_USER", default=None)
+UPTIME_USER = env.str("UPTIME_USER", default="turnout")
 UPTIME_SECRET = env.str("UPTIME_SECRET", default=None)
 
 CELERY_BEAT_SCHEDULE["trigger-config-uptime"] = {
