@@ -8,7 +8,7 @@ COPY app/package.json app/package-lock.json $APP_DIR/
 RUN npm install
 
 COPY app/requirements.txt $APP_DIR/
-RUN pip install -r requirements.txt --use-deprecated=legacy-resolver
+RUN ( pip --version ; echo "pip 20.3 xxxx") | sort | head -n 1 | grep -q xxxx && pip install -r requirements.txt --use-deprecated=legacy-resolver || pip install -r requirements.txt
 
 COPY scripts/docker_build_step2.sh /root/
 COPY app/ $APP_DIR/
