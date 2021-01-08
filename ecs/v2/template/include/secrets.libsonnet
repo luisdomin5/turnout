@@ -361,5 +361,17 @@
         valueFrom: 'arn:aws:ssm:us-west-2:719108811834:parameter/turnout.' + env + '.civic_key',
         name: 'CIVIC_KEY',
       },
+      {
+        valueFrom: 'arn:aws:ssm:us-west-2:719108811834:parameter/turnout.' + env + '.uptime_url',
+        name: 'UPTIME_URL',
+      },
+      {
+        valueFrom: 'arn:aws:ssm:us-west-2:719108811834:parameter/turnout.' + env + '.uptime_user',
+        name: 'UPTIME_USER',
+      },
+      {
+        valueFrom: 'arn:aws:ssm:us-west-2:719108811834:parameter/turnout.' + env + '.uptime_secret',
+        name: 'UPTIME_SECRET',
+      },
     ],
 }
