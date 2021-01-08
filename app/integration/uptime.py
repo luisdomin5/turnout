@@ -55,6 +55,10 @@ def oxford_join(ls: List[str]) -> str:
 
 @tracer.wrap()
 def config_uptime():
+    if not settings.UPTIME_URL.startswith("http"):
+        logger.info("No (valid) UPTIME_URL configured")
+        return
+
     sites = {}  # description -> {url, metadata}
     for slug, slug_desc in MONITOR.items():
         for item in StateInformation.objects.filter(field_type__slug=slug):
