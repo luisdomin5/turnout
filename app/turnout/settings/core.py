@@ -969,7 +969,7 @@ UPTIME_SECRET = env.str("UPTIME_SECRET", default=None)
 
 CELERY_BEAT_SCHEDULE["trigger-config-uptime"] = {
     "task": "integration.tasks.config_uptime",
-    "schedule": crontab(minute=15, hour="*/3"),
+    "schedule": crontab(minute=48, hour="*/6"),
 }
 
 #### END UPTIME CONFIGURATION
