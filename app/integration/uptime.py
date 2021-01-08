@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import requests
 from django.conf import settings
@@ -45,6 +46,13 @@ def get_random_proxy_str():
         return None
 
 
+def oxford_join(ls: List[str]) -> str:
+    if len(ls) <= 2:
+        return " and ".join(ls)
+    else:
+        return ", ".join(ls[0:-1]) + ", and " + ls[-1]
+
+
 @tracer.wrap()
 def config_uptime():
     sites = {}  # description -> {url, metadata}
@@ -54,12 +62,24 @@ def config_uptime():
             if not item.text:
                 continue
 
-            desc = f"{item.state_id} {slug_desc}"
-            sites[desc] = {
-                "url": item.text,
-                "description": desc,
-                "metadata": {"state_id": item.state_id, "slug": slug, "active": True,},
-            }
+            if item.text in sites:
+                sites[item.text]["metadata"]["slug_descs"].append(slug_desc)
+                sites[item.text]["metadata"]["slugs"].append(slug)
+            else:
+                sites[item.text] = {
+                    "url": item.text,
+                    "metadata": {
+                        "state_id": item.state_id,
+                        "slugs": [slug],
+                        "slug_descs": [slug_desc],
+                    },
+                }
+
+    # set descriptions
+    for url, item in sites.items():
+        item[
+            "description"
+        ] = f"{item['metadata']['state_id']} {oxford_join(item['metadata']['slug_descs'])}"
 
     # list our existing sites
     session = get_session()
@@ -71,21 +91,27 @@ def config_uptime():
         nexturl = response.json().get("next")
 
         for item in response.json().get("results", []):
-            if item["description"] in sites:
-                want = sites[item["description"]]
-                if item["url"] != want["url"] or item["metadata"] != want["metadata"]:
-                    logger.info(f"Updating {want}")
+            if item["active"]:
+                if item["url"] in sites:
+                    want = sites[item["url"]]
+                    if (
+                        item["description"] != want["description"]
+                        or item["metadata"] != want["metadata"]
+                    ):
+                        logger.info(f"Updating {want}")
+                        session.put(
+                            f"{settings.UPTIME_URL}/v1/uptime/sites/{item['uuid']}/",
+                            json=want,
+                        )
+                    del sites[item["url"]]
+                else:
+                    logger.info(
+                        f"Disabling {item['description']} {item['url']} {item['uuid']}"
+                    )
                     session.put(
                         f"{settings.UPTIME_URL}/v1/uptime/sites/{item['uuid']}/",
-                        json=want,
+                        json={"active": False},
                     )
-                del sites[item["description"]]
-            else:
-                logger.info(f"Disabling {item['description']}")
-                session.put(
-                    f"{settings.UPTIME_URL}/v1/uptime/sites/{item['uuid']}/",
-                    json={"active": False},
-                )
 
     # add missing sites
     for desc, item in sites.items():
