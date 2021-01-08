@@ -21,7 +21,7 @@ logger = logging.getLogger("integration")
 
 @shared_task
 def config_uptime() -> None:
-    from uptime import config_uptime
+    from .uptime import config_uptime
 
     config_uptime()
 
